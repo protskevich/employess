@@ -1,11 +1,12 @@
 ﻿@using WebApplication3.Models;
 @model Employee
-
-@using (Html.BeginForm("Edit", "Employee", FormMethod.Post))
+@{string action = ViewBag.Action; }
+@using (Html.BeginForm(action, "Employee", FormMethod.Post))
 {
 
     <table>
         @Html.HiddenFor(p => p.Id)
+        @Html.HiddenFor(p => p.CompanyId)
         <tr>
             <td>@Html.LabelFor(p => p.LastName)</td>
             <td>@Html.TextBoxFor(p => p.LastName)</td>
@@ -18,7 +19,7 @@
             <td>@Html.LabelFor(p => p.Age)</td>
             <td>@Html.EditorFor(p => p.Age)</td>
         </tr>
-        
+
     </table>
     <button>Submit</button>
 
