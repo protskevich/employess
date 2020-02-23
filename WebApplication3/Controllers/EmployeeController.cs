@@ -9,19 +9,19 @@ namespace WebApplication3.Controllers
 {
     public class EmployeeController : Controller
     {
-        static List<Employee> employees;
+        CompaniesContext db = new CompaniesContext();
 
-        static EmployeeController()
+        public EmployeeController()
         {
-            employees = new List<Employee>();
-            employees.Add(new Employee { Id = 1, FirstName = "Alexander", LastName = "Protskevich", Age = 27, CompanyId = 1 });
+            
         }
 
         public ActionResult Index(int companyId)
         {
-            List<Employee> filteredEmployees = employees.Where(p => p.CompanyId == companyId).ToList();
+            IQueryable<Employee> employees = db.Employees;
+            employees = employees.Where(p => p.CompanyId == companyId);
             ViewBag.CompanyId = companyId;
-            return View(filteredEmployees);
+            return View(employees.ToList());
         }
 
         [HttpGet]
@@ -35,15 +35,16 @@ namespace WebApplication3.Controllers
         [HttpPost]
         public ActionResult Add(Employee employee)
         {
-            employee.Id = employees.Count + 1;
-            employees.Add(employee);
+            employee.Id = db.Employees.Count() + 1;
+            db.Employees.Add(employee);
+            db.SaveChanges();
             return RedirectToAction("Index", new { companyId=employee.CompanyId });
         }
 
         [HttpGet]
         public ActionResult Edit(int id)
         {
-            var employee = employees.FirstOrDefault(p => p.Id == id);
+            var employee = db.Employees.FirstOrDefault(p => p.Id == id);
             if (employee != null)
             {
                 ViewBag.Action = "Edit";
@@ -56,22 +57,25 @@ namespace WebApplication3.Controllers
         [HttpPost]
         public ActionResult Edit(Employee employee)
         {
-            var oldEmployee = employees.FirstOrDefault(p => p.Id == employee.Id);
+            var oldEmployee = db.Employees.FirstOrDefault(p => p.Id == employee.Id);
             if (oldEmployee != null)
             {
                 oldEmployee.FirstName = employee.FirstName;
                 oldEmployee.LastName = employee.LastName;
                 oldEmployee.Age = employee.Age;
             }
-            return RedirectToAction("Index");
+            db.Entry(oldEmployee).State = System.Data.Entity.EntityState.Modified;
+            db.SaveChanges();
+            return RedirectToAction("Index", new { companyId = employee.CompanyId });
         }
 
         [HttpGet]
         public ActionResult Delete(int id)
         {
-            var employee = employees.FirstOrDefault(p => p.Id == id);
-            employees.Remove(employee);
-            return RedirectToAction("Index");
+            var employee = db.Employees.FirstOrDefault(p => p.Id == id);
+            db.Employees.Remove(employee);
+            db.SaveChanges();
+            return RedirectToAction("Index", new { companyId = employee.CompanyId });
         }
 
     }

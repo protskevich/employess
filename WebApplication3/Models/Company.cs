@@ -9,6 +9,6 @@ namespace WebApplication3.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<Employee> Users { get; set; }
+        public ICollection<Employee> Users { get; set; }
     }
 }

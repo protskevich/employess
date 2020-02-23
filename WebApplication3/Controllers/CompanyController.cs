@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -9,16 +10,11 @@ namespace WebApplication3.Controllers
 {
     public class CompanyController : Controller
     {
-        static List<Company> companies;
-
-        static CompanyController()
-        {
-            companies = new List<Company>();
-            companies.Add(new Company { Id = 1, Name = "Belitsoft", Users = new List<Employee>() });
-        }
+        CompaniesContext db = new CompaniesContext();
 
         public ActionResult Index()
         {
+            var companies = db.Companies.ToList();
             return View(companies);
         }
 
@@ -32,20 +28,21 @@ namespace WebApplication3.Controllers
         [HttpPost]
         public ActionResult Add(Company company)
         {
-            company.Id = companies.Count + 1;
-            companies.Add(company);
+            company.Id = db.Companies.Count() + 1;
+            db.Companies.Add(company);
+            db.SaveChanges();
             return RedirectToAction("Index");
         }
 
         [HttpGet]
         public ActionResult Edit(int id)
         {
-            var company = companies.FirstOrDefault(p => p.Id == id);
+            /*var company = companies.FirstOrDefault(p => p.Id == id);
             if (company != null)
             {
                 ViewBag.Action = "Edit";
                 return View(company);
-            }
+            }*/
 
             return HttpNotFound();
         }
